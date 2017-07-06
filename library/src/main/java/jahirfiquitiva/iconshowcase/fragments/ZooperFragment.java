@@ -114,6 +114,12 @@ public class ZooperFragment extends CapsuleFragment {
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        setupRV();
+    }
+
     public void showInstalledAppsSnackbar() {
         if (layout != null && context != null) {
             Utils.showSimpleSnackbar(context, layout,
