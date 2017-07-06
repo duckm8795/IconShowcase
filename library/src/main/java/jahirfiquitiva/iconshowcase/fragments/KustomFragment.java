@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,6 +53,7 @@ public class KustomFragment extends CapsuleFragment {
             KWGT_PKG = "org.kustom.widget",
             KOLORETTE_PKG = "com.arun.themeutil.kolorette";
     private KustomAdapter kustomAdapter;
+    private ViewGroup layout;
     private Context context;
     private SectionedGridSpacingItemDecoration space;
 
@@ -61,8 +63,18 @@ public class KustomFragment extends CapsuleFragment {
         super.onCreateView(inflater, container, savedInstanceState);
         context = getActivity();
 
-        View layout = inflater.inflate(R.layout.zooper_section, container, false);
-        setupRV(layout);
+        if (layout != null) {
+            ViewGroup parent = (ViewGroup) layout.getParent();
+            if (parent != null) {
+                parent.removeView(layout);
+            }
+        }
+        try {
+            layout = (ViewGroup) inflater.inflate(R.layout.zooper_section, container, false);
+        } catch (InflateException e) {
+            //Do nothing
+        }
+        setupRV();
         if (areAppsInstalled()) hideFab();
 
         return layout;
@@ -129,28 +141,29 @@ public class KustomFragment extends CapsuleFragment {
         }
     }
 
-    private void setupRV(View layout) {
-        int gridSpacing = getResources().getDimensionPixelSize(R.dimen.lists_padding);
-        final int columnsNumber = getResources().getInteger(R.integer.zooper_kustom_grid_width);
+    private void setupRV() {
+        if (layout != null) {
+            int gridSpacing = getResources().getDimensionPixelSize(R.dimen.lists_padding);
+            final int columnsNumber = getResources().getInteger(R.integer.zooper_kustom_grid_width);
 
-        RecyclerView mRecyclerView = (RecyclerView) layout.findViewById(R.id.zooper_rv);
+            RecyclerView mRecyclerView = (RecyclerView) layout.findViewById(R.id.zooper_rv);
 
-        if (space != null) {
+            if (space != null) {
             mRecyclerView.removeItemDecoration(space);
-        }
+            }
 
-        GridLayoutManager gridManager = new GridLayoutManager(context, columnsNumber);
+            GridLayoutManager gridManager = new GridLayoutManager(context, columnsNumber);
 
-        RecyclerFastScroller fastScroller = (RecyclerFastScroller)
+            RecyclerFastScroller fastScroller = (RecyclerFastScroller)
                 layout.findViewById(R.id.rvFastScroller);
 
-        kustomAdapter = new KustomAdapter(context,
+            kustomAdapter = new KustomAdapter(context,
                 ((ShowcaseActivity) context).getWallpaperDrawable());
 
-        space = new SectionedGridSpacingItemDecoration(columnsNumber, gridSpacing, true,
+            space = new SectionedGridSpacingItemDecoration(columnsNumber, gridSpacing, true,
                 kustomAdapter);
 
-        gridManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            gridManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
                 if (kustomAdapter.isHeader(position)) {
@@ -159,14 +172,21 @@ public class KustomFragment extends CapsuleFragment {
                     return 1;
                 }
             }
-        });
+            });
 
-        mRecyclerView.addItemDecoration(space);
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(gridManager);
-        kustomAdapter.setLayoutManager(gridManager);
-        mRecyclerView.setAdapter(kustomAdapter);
-        fastScroller.attachRecyclerView(mRecyclerView);
+            mRecyclerView.addItemDecoration(space);
+            mRecyclerView.setHasFixedSize(true);
+            mRecyclerView.setLayoutManager(gridManager);
+            kustomAdapter.setLayoutManager(gridManager);
+            mRecyclerView.setAdapter(kustomAdapter);
+            fastScroller.attachRecyclerView(mRecyclerView);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setupRV();
     }
 
     private boolean areAppsInstalled() {
