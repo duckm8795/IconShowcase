@@ -34,9 +34,9 @@ repositories {
 }
 
 ext {
-    TARGET_SDK = 25
-    BUILD_TOOLS = "25.0.2"
-    ANDROID_SUPPORT_LIBS = "25.3.1"
+    TARGET_SDK = 26
+    BUILD_TOOLS = "26.0.1"
+    ANDROID_SUPPORT_LIBS = "26.0.1"
 }
 
 android {
@@ -51,8 +51,8 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion TARGET_SDK
-        versionCode 1978
-        versionName "1.9.7.8"
+        versionCode 1979
+        versionName "1.9.7.9"
         vectorDrawables.useSupportLibrary = true
         consumerProguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
     }
@@ -107,13 +107,13 @@ dependencies {
     compile "com.android.support:customtabs:$ANDROID_SUPPORT_LIBS"
 
     //OkHttp
-    compile 'com.squareup.okhttp3:okhttp:3.6.0'
+    compile 'com.squareup.okhttp3:okhttp:3.8.0'
 
     //Glide Library - Image Loading Lib
     compile 'com.github.bumptech.glide:glide:3.7.0'
 
     //RecyclerView Fast Scroller
-    compile 'com.github.pluscubed:recycler-fast-scroll:0.3.2@aar'
+    compile 'com.github.pluscubed:recycler-fast-scroll:ab973f2'
 
     //Sectioned RecyclerView
     compile 'com.afollestad:sectioned-recyclerview:0.4.0'
@@ -122,10 +122,10 @@ dependencies {
     compile 'com.github.hdodenhof:CircleImageView:7fd3573'
 
     //Library for Requests
-    compile 'com.github.AllanWang:Butler:ea99c5b'
+    compile 'com.github.AllanWang:Icon-Request-Tool:a87db9d'
 
     //Library for UI framework
-    compile 'ca.allanwang:capsule:97ffe29'
+    compile 'ca.allanwang:capsule:a58a75a'
 
     //Donations Lib
     compile 'org.sufficientlysecure:donations:2.5'

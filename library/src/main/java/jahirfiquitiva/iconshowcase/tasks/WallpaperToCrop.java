@@ -31,6 +31,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.pitchedapps.butler.iconrequest.utils.FileUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -43,7 +44,7 @@ import jahirfiquitiva.iconshowcase.utilities.utils.Utils;
 import timber.log.Timber;
 
 public class WallpaperToCrop extends AsyncTask<Void, String, Boolean> {
-
+    
     private final MaterialDialog dialog;
     private final Bitmap resource;
     private final View layout;
@@ -54,14 +55,14 @@ public class WallpaperToCrop extends AsyncTask<Void, String, Boolean> {
     private View toHide1;
     private View toHide2;
     private volatile boolean wasCancelled = false;
-
+    
     public WallpaperToCrop(Activity activity, MaterialDialog dialog, Bitmap resource,
                            View layout, String wallName, View toHide1, View toHide2) {
         this(activity, dialog, resource, layout, wallName);
         this.toHide1 = toHide1;
         this.toHide2 = toHide2;
     }
-
+    
     private WallpaperToCrop(Activity activity, MaterialDialog dialog, Bitmap resource,
                             View layout, String wallName) {
         this.wrActivity = new WeakReference<>(activity);
@@ -70,7 +71,7 @@ public class WallpaperToCrop extends AsyncTask<Void, String, Boolean> {
         this.layout = layout;
         this.wallName = wallName;
     }
-
+    
     @Override
     protected void onPreExecute() {
         final Activity a = wrActivity.get();
@@ -78,7 +79,7 @@ public class WallpaperToCrop extends AsyncTask<Void, String, Boolean> {
             this.context = a.getApplicationContext();
         }
     }
-
+    
     @Override
     protected Boolean doInBackground(Void... params) {
         Boolean worked = false;
@@ -96,7 +97,7 @@ public class WallpaperToCrop extends AsyncTask<Void, String, Boolean> {
         }
         return worked;
     }
-
+    
     @Override
     protected void onPostExecute(Boolean worked) {
         if (!wasCancelled) {
@@ -110,17 +111,22 @@ public class WallpaperToCrop extends AsyncTask<Void, String, Boolean> {
                 setWall.setDataAndType(wallUri, "image/*");
                 setWall.putExtra("png", "image/*");
                 wrActivity.get().startActivityForResult(Intent.createChooser(setWall,
-                        context.getResources().getString(R.string.crop_and_set_as)), 1);
+                                                                             context.getResources()
+                                                                                     .getString(
+                                                                                             R.string.crop_and_set_as)),
+                                                        1);
             } else {
                 dialog.dismiss();
                 Snackbar snackbar = Snackbar.make(layout,
-                        context.getResources().getString(R.string.error), Snackbar.LENGTH_SHORT);
+                                                  context.getResources().getString(R.string.error),
+                                                  Snackbar.LENGTH_SHORT);
                 ViewGroup snackbarView = (ViewGroup) snackbar.getView();
                 snackbarView.setBackgroundColor(ThemeUtils.darkOrLight(context, R.color
                         .snackbar_light, R.color.snackbar_dark));
                 snackbarView.setPadding(snackbarView.getPaddingLeft(),
-                        snackbarView.getPaddingTop(), snackbarView.getPaddingRight(),
-                        Utils.getNavigationBarHeight((Activity) context));
+                                        snackbarView.getPaddingTop(),
+                                        snackbarView.getPaddingRight(),
+                                        Utils.getNavigationBarHeight((Activity) context));
                 snackbar.show();
                 snackbar.addCallback(new Snackbar.Callback() {
                     @Override
@@ -135,31 +141,32 @@ public class WallpaperToCrop extends AsyncTask<Void, String, Boolean> {
             }
         }
     }
-
+    
     @Override
     protected void onCancelled() {
         wasCancelled = true;
     }
-
+    
     private Uri getImageUri(Bitmap inImage) {
         Preferences mPrefs = new Preferences(context);
         File downloadsFolder;
-
+        
         Bitmap picture;
         picture = inImage.isRecycled() ? inImage.copy(Bitmap.Config.ARGB_8888, false) : inImage;
-
+        
         if (mPrefs.getDownloadsFolder() != null) {
             downloadsFolder = new File(mPrefs.getDownloadsFolder());
         } else {
             downloadsFolder = new File(context.getString(R.string.walls_save_location,
-                    Environment.getExternalStorageDirectory().getAbsolutePath()));
+                                                         Environment.getExternalStorageDirectory()
+                                                                 .getAbsolutePath()));
         }
-
+        
         //noinspection ResultOfMethodCallIgnored
         downloadsFolder.mkdirs();
-
+        
         File destFile = new File(downloadsFolder, wallName + ".png");
-
+        
         if (!destFile.exists() && picture != null) {
             try {
                 FileOutputStream fos = new FileOutputStream(destFile);
@@ -169,7 +176,7 @@ public class WallpaperToCrop extends AsyncTask<Void, String, Boolean> {
                 Timber.e("WallpaperToCrop", e.getLocalizedMessage());
             }
         }
-        return Uri.fromFile(destFile);
+        return FileUtil.getUriFromFile(context, destFile);
     }
-
+    
 }

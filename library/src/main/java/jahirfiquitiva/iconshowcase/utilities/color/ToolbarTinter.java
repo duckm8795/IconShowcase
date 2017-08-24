@@ -40,7 +40,6 @@ import android.app.Activity;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.view.menu.MenuItemImpl;
 import android.support.v7.widget.ActionMenuView;
 import android.util.Log;
@@ -67,9 +66,9 @@ import java.lang.reflect.Method;
  */
 @SuppressWarnings("RestrictedApi")
 public class ToolbarTinter {
-
+    
     private static final String TAG = "ToolbarTinter";
-
+    
     private static Method nativeIsActionButton;
     private final Menu menu;
     private final Integer originalIconsColor;
@@ -80,7 +79,7 @@ public class ToolbarTinter {
     private Integer iconsColor;
     private ImageView overflowButton;
     private ViewGroup actionBarView;
-
+    
     private ToolbarTinter(Builder builder) {
         menu = builder.menu;
         originalIconsColor = builder.originalIconsColor;
@@ -90,11 +89,12 @@ public class ToolbarTinter {
         reApplyOnChange = builder.reApplyOnChange;
         forceIcons = builder.forceIcons;
     }
-
+    
     /**
      * Check if an item is showing (not in the overflow menu).
      *
-     * @param item the MenuItem.
+     * @param item
+     *         the MenuItem.
      * @return {@code true} if the MenuItem is visible on the ActionBar.
      */
     private static boolean isActionButton(MenuItem item) {
@@ -104,7 +104,7 @@ public class ToolbarTinter {
         if (nativeIsActionButton == null) {
             try {
                 Class<?> MenuItemImpl = Class.forName("com.android.internal.view.menu" +
-                        ".MenuItemImpl");
+                                                              ".MenuItemImpl");
                 nativeIsActionButton = MenuItemImpl.getDeclaredMethod("isActionButton");
                 if (!nativeIsActionButton.isAccessible()) {
                     nativeIsActionButton.setAccessible(true);
@@ -120,23 +120,26 @@ public class ToolbarTinter {
         }
         return true;
     }
-
+    
     /**
      * Check if an item is in the overflow menu.
      *
-     * @param item the MenuItem
+     * @param item
+     *         the MenuItem
      * @return {@code true} if the MenuItem is in the overflow menu.
      * @see #isActionButton(MenuItem)
      */
     private static boolean isInOverflow(MenuItem item) {
         return !isActionButton(item);
     }
-
+    
     /**
      * Sets the color filter and/or the alpha transparency on a {@link MenuItem}'s icon.
      *
-     * @param menuItem The {@link MenuItem} to theme.
-     * @param color    The color to set for the color filter or {@code null} for no changes.
+     * @param menuItem
+     *         The {@link MenuItem} to theme.
+     * @param color
+     *         The color to set for the color filter or {@code null} for no changes.
      */
     private static void colorMenuItem(MenuItem menuItem, Integer color, Integer alpha) {
         if (color == null) {
@@ -155,11 +158,12 @@ public class ToolbarTinter {
             }
         }
     }
-
+    
     /**
      * Set the menu to show MenuItem icons in the overflow window.
      *
-     * @param menu the menu to force icons to show
+     * @param menu
+     *         the menu to force icons to show
      */
     private static void forceMenuIcons(Menu menu) {
         try {
@@ -173,30 +177,34 @@ public class ToolbarTinter {
         } catch (Exception ignored) {
         }
     }
-
+    
     public static Builder on(Menu menu) {
         return new Builder(menu);
     }
-
+    
     /**
      * Apply a ColorFilter with the specified color to all icons in the menu.
      *
-     * @param activity the Activity.
-     * @param menu     the menu after items have been added.
-     * @param color    the color for the ColorFilter.
+     * @param activity
+     *         the Activity.
+     * @param menu
+     *         the menu after items have been added.
+     * @param color
+     *         the color for the ColorFilter.
      */
     public static void colorIcons(Activity activity, Menu menu, int color) {
         ToolbarTinter.on(menu).setIconsColor(color).apply(activity);
     }
-
+    
     /**
-     * @param activity the Activity
+     * @param activity
+     *         the Activity
      * @return the OverflowMenuButton or {@code null} if it doesn't exist.
      */
     public static ImageView getOverflowMenuButton(Activity activity) {
         return findOverflowMenuButton(activity, findActionBar(activity));
     }
-
+    
     private static ImageView findOverflowMenuButton(Activity activity, ViewGroup viewGroup) {
         if (viewGroup == null) {
             return null;
@@ -217,7 +225,7 @@ public class ToolbarTinter {
         }
         return overflow;
     }
-
+    
     private static ViewGroup findActionBar(Activity activity) {
         int id = activity.getResources().getIdentifier("action_bar", "id", "android");
         ViewGroup actionBar = null;
@@ -226,11 +234,12 @@ public class ToolbarTinter {
         }
         if (actionBar == null) {
             actionBar = findToolbar((ViewGroup)
-                    activity.findViewById(android.R.id.content).getRootView());
+                                            activity.findViewById(android.R.id.content)
+                                                    .getRootView());
         }
         return actionBar;
     }
-
+    
     private static ViewGroup findToolbar(ViewGroup viewGroup) {
         ViewGroup toolbar = null;
         for (int i = 0, len = viewGroup.getChildCount(); i < len; i++) {
@@ -247,22 +256,23 @@ public class ToolbarTinter {
         }
         return toolbar;
     }
-
+    
     /**
      * <p>Sets a ColorFilter and/or alpha on all the {@link MenuItem}s in the menu, including the
      * OverflowMenuButton.</p> <p> <p>Call this method after inflating/creating your menu in {@link
      * Activity#onCreateOptionsMenu(Menu)}.</p> <p> <p>Note: This is targeted for the native
      * ActionBar/Toolbar, not AppCompat.</p>
      *
-     * @param activity the activity to apply the menu tinting on.
+     * @param activity
+     *         the activity to apply the menu tinting on.
      */
     private void apply(final Activity activity) {
-
+        
         if (menu != null) {
             if (forceIcons) {
                 forceMenuIcons(menu);
             }
-
+            
             for (int i = 0, size = menu.size(); i < size; i++) {
                 MenuItem item = menu.getItem(i);
                 colorMenuItem(item, iconsColor, iconsAlpha);
@@ -270,8 +280,7 @@ public class ToolbarTinter {
                     View view = item.getActionView();
                     if (view != null) {
                         if (item instanceof MenuItemImpl) {
-                            ((MenuItemImpl) item).setSupportOnActionExpandListener(
-                                    new SupportActionExpandListener(this));
+                            item.setOnActionExpandListener(new SupportActionExpandListener(this));
                         } else {
                             item.setOnActionExpandListener(new NativeActionExpandListener(this));
                         }
@@ -279,20 +288,20 @@ public class ToolbarTinter {
                 }
             }
         }
-
+        
         actionBarView = findActionBar(activity);
         if (actionBarView == null) {
             Log.w(TAG, "Could not find the ActionBar");
             return;
         }
-
+        
         // We must wait for the view to be created to set a color filter on the drawables.
         actionBarView.post(new Runnable() {
             @Override
             public void run() {
                 for (int i = 0; i < actionBarView.getChildCount(); i++) {
                     final View v = actionBarView.getChildAt(i);
-
+                    
                     //Step 1 : Changing the color of back button (or open drawer button).
                     if (v instanceof ImageButton) {
                         //Action Bar back button
@@ -321,7 +330,7 @@ public class ToolbarTinter {
             }
         });
     }
-
+    
     /**
      * <p>Sets a ColorFilter and/or alpha on all the {@link MenuItem}s in the menu, including the
      * OverflowMenuButton.</p> <p> <p>This should only be called after calling {@link
@@ -329,7 +338,7 @@ public class ToolbarTinter {
      * action view being collapsed or expanded.</p>
      */
     private void reapply() {
-
+        
         if (menu != null) {
             for (int i = 0, size = menu.size(); i < size; i++) {
                 MenuItem item = menu.getItem(i);
@@ -338,13 +347,13 @@ public class ToolbarTinter {
                 }
             }
         }
-
+        
         if (actionBarView == null) {
             return;
         }
-
+        
         actionBarView.post(new Runnable() {
-
+            
             @Override
             public void run() {
                 if (menu != null) {
@@ -367,10 +376,10 @@ public class ToolbarTinter {
                     colorOverflowMenuItem(overflowButton);
                 }
             }
-
+            
         });
     }
-
+    
     private void colorOverflowMenuItem(ImageView overflow) {
         if (overflow != null) {
             if (overflowDrawableId != null) {
@@ -382,80 +391,79 @@ public class ToolbarTinter {
             overflow.setImageAlpha(iconsAlpha);
         }
     }
-
+    
     public Menu getMenu() {
         return menu;
     }
-
+    
     public ImageView getOverflowMenuButton() {
         return overflowButton;
     }
-
+    
     private void setMenuItemIconColor(Integer color) {
         iconsColor = color;
     }
-
+    
     public static class NativeActionExpandListener implements OnActionExpandListener {
-
+        
         private final ToolbarTinter menuTint;
-
+        
         public NativeActionExpandListener(ToolbarTinter menuTint) {
             this.menuTint = menuTint;
         }
-
+        
         @Override
         public boolean onMenuItemActionExpand(MenuItem item) {
             int color = menuTint.iconsColor != null ? menuTint.iconsColor :
-                    menuTint.originalIconsColor;
+                        menuTint.originalIconsColor;
             menuTint.setMenuItemIconColor(color);
             menuTint.reapply();
             return true;
         }
-
+        
         @Override
         public boolean onMenuItemActionCollapse(MenuItem item) {
             int color = menuTint.iconsColor != null ? menuTint.iconsColor :
-                    menuTint.originalIconsColor;
+                        menuTint.originalIconsColor;
             menuTint.setMenuItemIconColor(color);
             menuTint.reapply();
             return true;
         }
-
+        
     }
-
-    public static class SupportActionExpandListener implements
-            MenuItemCompat.OnActionExpandListener {
-
+    
+    public static class SupportActionExpandListener implements OnActionExpandListener {
+        
         private final ToolbarTinter menuTint;
-
+        
         public SupportActionExpandListener(ToolbarTinter menuTint) {
             this.menuTint = menuTint;
         }
-
+        
         @Override
         public boolean onMenuItemActionExpand(MenuItem item) {
             int color = menuTint.iconsColor != null ? menuTint.iconsColor :
-                    menuTint.originalIconsColor;
+                        menuTint.originalIconsColor;
             menuTint.setMenuItemIconColor(color);
             menuTint.reapply();
             return true;
         }
-
+        
         @Override
         public boolean onMenuItemActionCollapse(MenuItem item) {
             int color = menuTint.iconsColor != null ? menuTint.iconsColor :
-                    menuTint.originalIconsColor;
+                        menuTint.originalIconsColor;
             menuTint.setMenuItemIconColor(color);
             menuTint.reapply();
             return true;
         }
-
+        
     }
-
+    
     // --------------------------------------------------------------------------------------------
-
+    
     public static final class Builder {
-
+        
         private final Menu menu;
         private Integer iconsColor;
         private Integer iconsAlpha;
@@ -463,19 +471,19 @@ public class ToolbarTinter {
         private Integer originalIconsColor;
         private boolean reApplyOnChange;
         private boolean forceIcons;
-
+        
         private Builder(Menu menu) {
             this.menu = menu;
         }
-
+        
         /**
          * <p>Sets an {@link OnActionExpandListener} on all {@link MenuItem}s with views, so when
          * the menu is updated, the colors will be also.</p> <p> <p>This is useful when the overflow
          * menu is showing icons and {@link MenuItem}s might be pushed to the overflow menu when a
          * action view is expanded e.g. android.widget.SearchView. </p>
          *
-         * @param reapply {@code true} to set the listeners on all {@link MenuItem}s with action
-         *                views.
+         * @param reapply
+         *         {@code true} to set the listeners on all {@link MenuItem}s with action views.
          * @return this Builder object to allow for chaining of calls to set methods
          */
         @SuppressWarnings("SameParameterValue")
@@ -483,47 +491,48 @@ public class ToolbarTinter {
             reApplyOnChange = reapply;
             return this;
         }
-
+        
         /**
          * Specify a color for visible MenuItem icons, including the OverflowMenuButton.
          *
-         * @param color the color to apply on visible MenuItem icons, including the
-         *              OverflowMenuButton.
+         * @param color
+         *         the color to apply on visible MenuItem icons, including the OverflowMenuButton.
          * @return this Builder object to allow for chaining of calls to set methods
          */
         public Builder setIconsColor(int color) {
             iconsColor = color;
             return this;
         }
-
+        
         /**
          * Specify a color that is applied when an action view is expanded or collapsed.
          *
-         * @param color the color to apply on MenuItems when an action-view is expanded or
-         *              collapsed.
+         * @param color
+         *         the color to apply on MenuItems when an action-view is expanded or collapsed.
          * @return this Builder object to allow for chaining of calls to set methods
          */
         public Builder setOriginalIconsColor(int color) {
             originalIconsColor = color;
             return this;
         }
-
+        
         /**
          * Set the drawable id to set on the OverflowMenuButton.
          *
-         * @param drawableId the resource identifier of the drawable
+         * @param drawableId
+         *         the resource identifier of the drawable
          * @return this Builder object to allow for chaining of calls to set methods
          */
         public Builder setOverflowDrawableId(int drawableId) {
             overflowDrawableId = drawableId;
             return this;
         }
-
+        
         public Builder setIconsAlpha(int alpha) {
             iconsAlpha = alpha;
             return this;
         }
-
+        
         /**
          * Set the menu to show MenuItem icons in the overflow window.
          *
@@ -533,7 +542,7 @@ public class ToolbarTinter {
             forceIcons = true;
             return this;
         }
-
+        
         /**
          * <p>Sets a ColorFilter and/or alpha on all the MenuItems in the menu, including the
          * OverflowMenuButton.</p> <p> <p>Call this method after inflating/creating your menu in</p>
@@ -544,7 +553,7 @@ public class ToolbarTinter {
             ToolbarTinter theme = new ToolbarTinter(this);
             theme.apply(activity);
         }
-
+        
         /**
          * <p>Creates a {@link ToolbarTinter} with the arguments supplied to this builder.</p> <p>
          * <p>It does not apply the theme. Call {@link ToolbarTinter#apply(Activity)} to do so.</p>
@@ -554,22 +563,22 @@ public class ToolbarTinter {
         public ToolbarTinter create() {
             return new ToolbarTinter(this);
         }
-
+        
     }
-
+    
     // --------------------------------------------------------------------------------------------
-
+    
     /**
      * Auto collapses the SearchView when the soft keyboard is dismissed.
      */
     public static class SearchViewFocusListener implements View.OnFocusChangeListener {
-
+        
         private final MenuItem item;
-
+        
         public SearchViewFocusListener(MenuItem item) {
             this.item = item;
         }
-
+        
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
             if (!hasFocus && item != null) {
@@ -579,7 +588,7 @@ public class ToolbarTinter {
                 }
             }
         }
-
+        
     }
-
+    
 }

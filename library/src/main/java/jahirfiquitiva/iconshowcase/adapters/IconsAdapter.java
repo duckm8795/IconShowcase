@@ -28,11 +28,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.FileProvider;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+
+import com.pitchedapps.butler.iconrequest.utils.FileUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,17 +49,17 @@ import jahirfiquitiva.iconshowcase.utilities.Preferences;
 import timber.log.Timber;
 
 public class IconsAdapter extends RecyclerView.Adapter<IconHolder> {
-
+    
     private final Activity context;
     private final Preferences mPrefs;
     private ArrayList<IconItem> iconsList;
-
+    
     public IconsAdapter(Activity context, ArrayList<IconItem> iconsList) {
         this.context = context;
         this.iconsList = iconsList;
         this.mPrefs = new Preferences(context);
     }
-
+    
     public void setIcons(ArrayList<IconItem> nList) {
         if (iconsList != null) {
             iconsList.clear();
@@ -69,11 +70,11 @@ public class IconsAdapter extends RecyclerView.Adapter<IconHolder> {
             iconsList.addAll(nList);
         notifyItemRangeChanged(0, iconsList.size());
     }
-
+    
     public void clearIconsList() {
         this.iconsList.clear();
     }
-
+    
     @Override
     public IconHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
@@ -85,32 +86,32 @@ public class IconsAdapter extends RecyclerView.Adapter<IconHolder> {
             }
         });
     }
-
+    
     @Override
     public void onBindViewHolder(final IconHolder holder, int position) {
         if (position < 0) return;
         holder.setItem(iconsList.get(holder.getAdapterPosition()), mPrefs.getAnimationsEnabled());
     }
-
+    
     @Override
     public int getItemCount() {
         return iconsList == null ? 0 : iconsList.size();
     }
-
+    
     @Override
     public void onViewDetachedFromWindow(IconHolder holder) {
         holder.clearAnimation();
     }
-
+    
     private void iconClick(IconItem item) {
         int resId = item.getResId();
         String name = item.getName().toLowerCase();
-
+        
         if (context instanceof ShowcaseActivity) {
             int pickerKey = ((ShowcaseActivity) context).getPickerKey();
             if (pickerKey == 0) {
                 IconDialog.show((FragmentActivity) context, name, resId,
-                        mPrefs.getAnimationsEnabled());
+                                mPrefs.getAnimationsEnabled());
             } else if (pickerKey != Config.WALLS_PICKER) {
                 Intent intent = new Intent();
                 Bitmap bitmap = null;
@@ -140,9 +141,8 @@ public class IconsAdapter extends RecyclerView.Adapter<IconHolder> {
                             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
                             fos.flush();
                             fos.close();
-
-                            uri = getUriFromFile(context, icon);
-                            if (uri == null) uri = Uri.fromFile(icon);
+                            
+                            uri = FileUtil.getUriFromFile(context, icon);
                         } catch (Exception ignored) {
                         }
                         if (uri == null) {
@@ -151,8 +151,8 @@ public class IconsAdapter extends RecyclerView.Adapter<IconHolder> {
                             } catch (Exception e) {
                                 try {
                                     uri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE +
-                                            "://" + context.getPackageName() + "/" +
-                                            String.valueOf(resId));
+                                                            "://" + context.getPackageName() + "/" +
+                                                            String.valueOf(resId));
                                 } catch (Exception ignored) {
                                 }
                             }
@@ -175,21 +175,11 @@ public class IconsAdapter extends RecyclerView.Adapter<IconHolder> {
             }
         }
     }
-
+    
     private Uri getUriFromResource(Context context, int resID) {
         return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" +
-                context.getResources().getResourcePackageName(resID) + '/' +
-                context.getResources().getResourceTypeName(resID) + '/' +
-                context.getResources().getResourceEntryName(resID));
+                                 context.getResources().getResourcePackageName(resID) + '/' +
+                                 context.getResources().getResourceTypeName(resID) + '/' +
+                                 context.getResources().getResourceEntryName(resID));
     }
-
-    private Uri getUriFromFile(Context context, File file) {
-        try {
-            return FileProvider.getUriForFile(context, context.getPackageName() +
-                    ".fileProvider", file);
-        } catch (Exception ignored) {
-        }
-        return null;
-    }
-
 }
