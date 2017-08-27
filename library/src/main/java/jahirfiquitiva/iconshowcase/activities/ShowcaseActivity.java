@@ -410,8 +410,9 @@ public class ShowcaseActivity extends TasksActivity {
         //Fragment Switcher
         reloadFragment(dt);
 
-        cCollapsingToolbarLayout.setTitle(dt.getName().equals("Home") ? Config.get().string(R
-                .string.app_name) : getString(dt.getTitleID()));
+        cCollapsingToolbarLayout.setTitle(dt.getName().equals("Home")
+                                          ? Config.get().string(R.string.app_name)
+                                          : getString(dt.getTitleID()));
 
         drawer.setSelection(itemId);
     }
