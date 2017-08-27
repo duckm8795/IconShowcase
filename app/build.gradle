@@ -46,8 +46,8 @@ android {
         applicationId "jahirfiquitiva.apps.iconshowcase.demo"
         minSdkVersion 16
         targetSdkVersion TARGET_SDK
-        versionCode 1979
-        versionName "1.9.7.9"
+        versionCode 1980
+        versionName "1.9.8.0"
         vectorDrawables.useSupportLibrary = true
     }
 
