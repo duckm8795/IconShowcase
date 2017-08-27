@@ -125,7 +125,7 @@ dependencies {
     compile 'com.github.AllanWang:Icon-Request-Tool:a87db9d'
 
     //Library for UI framework
-    compile 'com.github.AllanWang:Capsule:bfe02dd'
+    compile 'com.github.AllanWang:Capsule:f7a906e'
 
     //Donations Lib
     compile 'org.sufficientlysecure:donations:2.5'
