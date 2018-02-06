@@ -1,6 +1,10 @@
 <h1>IconShowcase</h1>
 
 <h3>Deprecated/No Longer Maintained</h3>
+
+[![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
+
+This project is no longer actively maintained. It does its job, but there are no plans to extend, change, update or improve it.
 <h4>Please start using <a href="https://github.com/jahirfiquitiva/Blueprint">my new dashboard: Blueprint</a></h4>
 
 --------
